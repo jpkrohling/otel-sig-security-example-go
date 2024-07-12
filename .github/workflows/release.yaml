@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  attestations: write
+  contents: write
+  id-token: write
+  issues: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
+        with:
+          go-version: 1.22.5
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200 # v6.0.0
+        with:
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate bill of materials (SBOM) 
+        uses: anchore/sbom-action@95b086ac308035dc0850b3853be5b7ab108236a8 # v0.16.1
+        with:
+          format: 'spdx-json'
+          output-file: 'sbom.spdx.json'
+
+      - name: Attest
+        uses: actions/attest-build-provenance@5e9cb68e95676991667494a6a4e59b8a2f13e1d0 # v1.3.3
+        with:
+          subject-path: '${{ github.workspace }}/dist'
+
+      - name: Attest bill of materials (SBOM) 
+        uses: actions/attest-sbom@6d7733f629ce1368bd053e269afa8041a98a2b98 # v1.3.3
+        with:
+          subject-path: '${{ github.workspace }}/dist'
+          sbom-path: 'sbom.spdx.json'
