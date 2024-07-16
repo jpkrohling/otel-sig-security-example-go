@@ -47,8 +47,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha            
-  
+            type=sha
+
       - name: Build the binaries
         uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200 # v6.0.0
         with:
@@ -62,9 +62,10 @@ jobs:
         with:
           context: dist/otel-sig-security-example-go_linux_amd64_v1
           file: Dockerfile
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
+
       - name: Generate the bill of materials (SBOM)
         uses: anchore/sbom-action@d94f46e13c6c62f59525ac9a1e147a99dc0b9bf5 # v0.17.0
         with:
@@ -81,3 +82,11 @@ jobs:
         with:
           subject-path: "${{ github.workspace }}/dist"
           sbom-path: "sbom.spdx.json"
+
+      - name: Attest container images	
+        uses: actions/attest-build-provenance@v1	
+        id: attest	
+        with:	
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}	
+          subject-digest: ${{ steps.push.outputs.digest }}	
+          push-to-registry: true	
