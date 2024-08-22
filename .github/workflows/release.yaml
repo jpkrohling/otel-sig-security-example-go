@@ -28,7 +28,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
         with:
-          go-version: 1.22.5
+          go-version: 1.23
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -37,11 +37,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Prepare container metadata
         id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: |
+            jpkroehling/otel-sig-security-example-go
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
@@ -83,10 +90,10 @@ jobs:
           subject-path: "${{ github.workspace }}/dist"
           sbom-path: "sbom.spdx.json"
 
-      - name: Attest container images	
+      - name: Attest container images
         uses: actions/attest-build-provenance@310b0a4a3b0b78ef57ecda988ee04b132db73ef8 # v1.4.1
         id: attest
-        with:	
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}	
-          subject-digest: ${{ steps.push.outputs.digest }}	
-          push-to-registry: true	
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
