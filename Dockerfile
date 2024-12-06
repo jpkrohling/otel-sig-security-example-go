@@ -9,7 +9,7 @@
 # $ goreleaser --snapshot --clean
 # $ docker build -f Dockerfile -t jpkroehling/otel-sig-security-example-go:latest dist/otel-sig-security-example-go_linux_amd64_v1
 
-FROM alpine:3.20
+FROM alpine:3.21
 ENTRYPOINT ["/otel-sig-security-example-go"]
 
 # Note that we use the exact same binary that will be built in the CI
