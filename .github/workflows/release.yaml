@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: 1.23
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Prepare container metadata
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5.6.1
         with:
           images: |
             jpkroehling/otel-sig-security-example-go
@@ -57,7 +57,7 @@ jobs:
             type=sha
 
       - name: Build the binaries
-        uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200 # v6.0.0
+        uses: goreleaser/goreleaser-action@9ed2f89a662bf1735a48bc8557fd212fa902bebf # v6.1.0
         with:
           args: release --clean
         env:
@@ -65,7 +65,7 @@ jobs:
 
       - name: Build and push the images
         id: push
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6.10.0
         with:
           context: dist/otel-sig-security-example-go_linux_amd64_v1
           file: Dockerfile
@@ -74,7 +74,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Generate the bill of materials (SBOM)
-        uses: anchore/sbom-action@fc46e51fd3cb168ffb36c6d1915723c47db58abb # v0.17.7
+        uses: anchore/sbom-action@df80a981bc6edbc4e220a492d3cbe9f5547a6e75 # v0.17.9
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
